@@ -114,6 +114,7 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
         }
         usersDTO.setIdUsers(usersId);
         usersDTO.setUpdatedAt(new Date());
+        usersDTO.setRole(getUserRole(usersId));
         try {
             Users users = usersMapper.fromUserDTO(usersDTO);
             Users updateUsers = usersRepository.save(users);
@@ -245,5 +246,13 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
         }
         Map<String, String> tokens = this.jwtService.generate(jwt.getUsers());
         return tokens;
+    }
+
+    private Role getUserRole(Long idUsers) throws UserNotFoundException{
+        if (idUsers == null) {
+            throw new IllegalArgumentException("User ID must not be null");
+        }
+        Users users = usersRepository.findById(idUsers).orElseThrow(() -> new UserNotFoundException("user not found"));
+        return users.getRole();
     }
 }

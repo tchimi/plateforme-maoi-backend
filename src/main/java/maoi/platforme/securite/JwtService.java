@@ -56,7 +56,7 @@ public class JwtService {
     }
 
     public String extractUserName(String bearerToken) {
-        Jwt jwt = this.getTokenByBearerToken(bearerToken );
+        Jwt jwt = this.getTokenByBearerToken(bearerToken);
         //this.getClaim(bearerToken, Claims::getSubject);
         return jwt.getUsers().getEmail();
     }
