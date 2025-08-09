@@ -86,6 +86,7 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
         try {
             Users users = usersMapper.fromUserDTO(usersDTO);
             Users saveUsers = usersRepository.save(users);
+            this.validationService.save(saveUsers);
             return usersMapper.fromUsers(saveUsers);
 
         } catch (Exception e) {

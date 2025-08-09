@@ -35,7 +35,7 @@ public class SecurityConfiguration {
         return httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize->
                         authorize
-                                .requestMatchers(POST,"v1/addUsers").permitAll()
+                                .requestMatchers(POST,"v1/users/save").permitAll()
                                 .requestMatchers(POST,"v1/activeUsersAccount").permitAll()
                                 .requestMatchers(POST,"v1/authentication").permitAll()
                                 .requestMatchers(POST,"v1/updatePassWord").permitAll()
