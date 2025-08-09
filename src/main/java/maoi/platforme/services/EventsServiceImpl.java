@@ -54,7 +54,8 @@ public class EventsServiceImpl implements EventsService {
         String fileName = this.uploadFileService.uploadFile(file, storageDir, rootLocation);
         eventsDTO.setImageCover(fileName);
         Events events = eventsMapper.fromEventsDTO(eventsDTO);
-        return eventsMapper.fromEvents(events);
+        Events saveEvents = eventsRepository.save(events);
+        return eventsMapper.fromEvents(saveEvents);
     }
 
     @Override

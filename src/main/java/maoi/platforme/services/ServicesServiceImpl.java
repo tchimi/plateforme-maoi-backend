@@ -53,7 +53,8 @@ public class ServicesServiceImpl implements ServicesService {
         String fileName = this.uploadFileService.uploadFile(file, storageDir, rootLocation);
         servicesDTO.setImageCover(fileName);
         Services services = servicesMapper.fromServiceDTO(servicesDTO);
-        return servicesMapper.fromServices(services);
+        Services servicesSave = servicesRepository.save(services);
+        return servicesMapper.fromServices(servicesSave);
     }
 
     @Override

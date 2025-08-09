@@ -53,8 +53,9 @@ public class TrainingServiceImpl implements TrainingsService {
         trainingDTO.setUpdatedAt(trainingDTO.getCreatedAt());
         String fileName = this.uploadFileService.uploadFile(file, storageDir, rootLocation);
         trainingDTO.setImageCover(fileName);
-        Training services = trainingMapper.fromTrainingDTO(trainingDTO);
-        return trainingMapper.fromTraining(services);
+        Training training = trainingMapper.fromTrainingDTO(trainingDTO);
+        Training saveTraining = trainingRepository.save(training);
+        return trainingMapper.fromTraining(saveTraining);
     }
 
     @Override
