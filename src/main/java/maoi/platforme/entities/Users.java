@@ -13,6 +13,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -54,9 +55,11 @@ public class Users implements UserDetails {
     private Date updatedAt;
     private boolean actif = false;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id")
+    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
     private Role role;
+
+    @OneToMany(mappedBy = "users", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Validation> validations;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {

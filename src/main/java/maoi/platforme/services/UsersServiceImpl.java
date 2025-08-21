@@ -135,7 +135,6 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
             String filename = user.getProfileImage();
             uploadFileService.deleteFile(filename, storageDir, this.rootLocation);
         }
-
     }
 
     @Override
