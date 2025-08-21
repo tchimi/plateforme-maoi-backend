@@ -54,7 +54,8 @@ public class Users implements UserDetails {
     private Date updatedAt;
     private boolean actif = false;
 
-    @OneToOne(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "role_id")
     private Role role;
 
     @Override
