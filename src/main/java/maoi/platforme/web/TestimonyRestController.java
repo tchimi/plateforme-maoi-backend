@@ -20,7 +20,7 @@ public class TestimonyRestController {
     }
 
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PostMapping(path = "/v1/testimony/save", consumes = MediaType.APPLICATION_JSON_VALUE)
+    @PostMapping(path = "v1/testimony/save", consumes = MediaType.APPLICATION_JSON_VALUE)
     public TestimonyDTO saveTestimony(@RequestBody TestimonyDTO testimonyDTO) throws TestimonySlugInvalideException, TestimonySlugUsedException {
         return testimonyService.saveTestimony(testimonyDTO);
     }
@@ -38,7 +38,7 @@ public class TestimonyRestController {
     }
 
     @ResponseStatus(value = HttpStatus.OK)
-    @GetMapping(path = "v1/testimony/", produces = MediaType.APPLICATION_JSON_VALUE)
+    @GetMapping(path = "v1/testimony", produces = MediaType.APPLICATION_JSON_VALUE)
     public ListTestimonyDTO getAllTestimony(@RequestParam(name = "page", defaultValue = "0") int page,
                                             @RequestParam(name = "size", defaultValue = "10") int size) throws TestimonyNotFoundException {
         return testimonyService.getTestimonies(page, size);
