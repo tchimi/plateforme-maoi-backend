@@ -60,7 +60,7 @@ public class UsersRestController {
         return usersService.saveUsers(usersDTO, file);
     }
 
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @ResponseStatus(value = HttpStatus.OK)
     @PutMapping(path = "v1/users/update/{usersId}")
     public UsersDTO updateUsers(@PathVariable(name = "usersId") Long usersId,
                                 @ModelAttribute UsersDTO usersDTO,

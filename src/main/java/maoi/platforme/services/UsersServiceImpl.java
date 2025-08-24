@@ -9,6 +9,7 @@ import maoi.platforme.entities.*;
 import maoi.platforme.enums.TypeDeRole;
 import maoi.platforme.exception.*;
 import maoi.platforme.mappers.UsersMapperImpl;
+import maoi.platforme.repositories.RoleRepository;
 import maoi.platforme.repositories.UsersRepository;
 import maoi.platforme.securite.JwtService;
 import org.springframework.core.io.Resource;
@@ -48,6 +49,7 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
     //private AuthenticationManager authenticationManager;
     private final Path rootLocation = Paths.get("upload/");
     private final String storageDir = "users/profileImage";
+    private RoleRepository roleRepository;
 
     //Logger LOG = LoggerFactory.getLogger(UsersServiceImpl.class);
     private BCryptPasswordEncoder passwordEncoder ;
@@ -97,35 +99,32 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
 
     @Override
     public UsersDTO updateUsers(Long usersId, UsersDTO usersDTO, MultipartFile file) throws UserMailInvalidException, UserNotFoundException, StorageException {
-        UsersDTO oldUserSDTO = getUser(usersId);
-        if (oldUserSDTO != null) {
-            String oldMail = oldUserSDTO.getEmail();
-            if (!oldMail.equalsIgnoreCase(usersDTO.getEmail())) {
-                if (!usersDTO.getEmail().contains("@")) {
-                    throw new UserMailInvalidException("Votre mail invalide");
-                }
-                if (!usersDTO.getEmail().contains(".")) {
-                    throw new UserMailInvalidException("Votre mail invalide");
-                }
-            }
+        UsersDTO oldUserDTO = getUser(usersId);
+        if (oldUserDTO == null) {
+            throw new UserNotFoundException("Utilisateur non trouvé");
         }
+
+        // Conserver l'email et le mot de passe existants
+        usersDTO.setEmail(oldUserDTO.getEmail());
+        usersDTO.setPassword(oldUserDTO.getPassword());
+
         if (file != null) {
             String fileName = uploadFileService.uploadFile(file, storageDir, rootLocation);
             usersDTO.setProfileImage(fileName);
         }
+
         usersDTO.setIdUsers(usersId);
         usersDTO.setUpdatedAt(new Date());
         usersDTO.setRole(getUserRole(usersId));
+
         try {
             Users users = usersMapper.fromUserDTO(usersDTO);
             Users updateUsers = usersRepository.save(users);
             return usersMapper.fromUsers(updateUsers);
-
         } catch (Exception e) {
-            log.error("an error has occurred while executing the method updateUsers() {}" ,usersDTO.getName(), e);
+            log.error("an error has occurred while executing the method updateUsers() {}", usersDTO.getName(), e);
             return null;
         }
-
     }
 
     @Override
@@ -136,7 +135,6 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
             String filename = user.getProfileImage();
             uploadFileService.deleteFile(filename, storageDir, this.rootLocation);
         }
-
     }
 
     @Override
