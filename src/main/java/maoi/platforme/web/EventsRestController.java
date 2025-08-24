@@ -1,17 +1,20 @@
 package maoi.platforme.web;
 
+import lombok.extern.slf4j.Slf4j;
 import maoi.platforme.dtos.EventsDTO;
 import maoi.platforme.dtos.ListEventsDTO;
 import maoi.platforme.exception.*;
 import maoi.platforme.services.EventsService;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 
 @RestController
+@Slf4j
 public class EventsRestController {
     private EventsService eventsService;
 
@@ -41,10 +44,11 @@ public class EventsRestController {
     }
 
     @ResponseStatus(value = HttpStatus.OK)
-    @GetMapping(path="v1/events")
-    public ListEventsDTO getEvents(@RequestParam(name = "Page", defaultValue = "0") int page,
+    @GetMapping(path="v1/events", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ListEventsDTO getEvents(@RequestParam(name = "page", defaultValue = "0") int page,
                                    @RequestParam(name = "size", defaultValue = "10") int size) throws EventNotFoundException {
-      return this.eventsService.events(page,size);
+        ListEventsDTO listEventsDTO = this.eventsService.events(page,size);
+      return listEventsDTO;
     }
 
     @GetMapping(path="v1/events/{idEvents}")

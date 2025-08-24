@@ -22,8 +22,10 @@ public class Jwt {
     private String bearerToken;
     private boolean bearerTokenDisabled;
     private boolean bearerTokenExpire;
-    @OneToOne(cascade= CascadeType.ALL, fetch = FetchType.EAGER)
+    @OneToOne(fetch = FetchType.LAZY, cascade = CascadeType.ALL, optional = false)
+    @JoinColumn(name = "refresh_token_id")
     private RefreshToken refreshToken;
-    @ManyToOne(cascade = {CascadeType.DETACH, CascadeType.MERGE})
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "users_id_users", nullable = false)
     private Users users;
 }

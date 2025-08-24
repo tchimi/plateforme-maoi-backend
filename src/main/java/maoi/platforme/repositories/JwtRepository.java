@@ -8,7 +8,7 @@ import java.util.Optional;
 import java.util.stream.Stream;
 
 public interface JwtRepository extends JpaRepository<Jwt, Long> {
-
+    @Query("FROM Jwt j JOIN FETCH j.users u JOIN FETCH u.role WHERE j.bearerToken = :bearerToken")
     Optional<Jwt> findByBearerToken(String bearerToken);
 
     @Query("FROM Jwt j WHERE j.bearerTokenExpire = :bearerTokenExpire AND j.bearerTokenDisabled = :bearerTokenDisabled AND j.users.email = :email")

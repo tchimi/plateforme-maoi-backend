@@ -24,6 +24,7 @@ import java.util.Map;
 public class UsersRestController {
     private UsersService usersService;
     private AuthenticationManager authenticationManager;
+
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping(path = "/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
     public ListUsersDTO listUsers(@RequestParam(name = "page", defaultValue = "0") int page,

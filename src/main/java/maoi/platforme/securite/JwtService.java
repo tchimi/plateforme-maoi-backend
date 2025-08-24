@@ -7,9 +7,11 @@ import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import maoi.platforme.dtos.JwtDTO;
 import maoi.platforme.entities.Jwt;
 import maoi.platforme.entities.RefreshToken;
 import maoi.platforme.entities.Users;
+import maoi.platforme.mappers.JwtMapperImpl;
 import maoi.platforme.repositories.JwtRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -33,6 +35,7 @@ public class JwtService {
 
     private final String ENCRYPTION_KEYS = "adc6cc6148069b0c467e190f213c07b784c2883e3310d2200d8fc85cf8477d91";
     private JwtRepository jwtRepository;
+    private JwtMapperImpl jwtMapper;
 
     public Map<String, String> generate(Users userDetails){
         this.disableBearerToken(userDetails);
@@ -56,23 +59,31 @@ public class JwtService {
     }
 
     public String extractUserName(String bearerToken) {
-        Jwt jwt = this.getTokenByBearerToken(bearerToken);
-        //this.getClaim(bearerToken, Claims::getSubject);
-        return jwt.getUsers().getEmail();
+        //Jwt jwt = this.getTokenByBearerToken(bearerToken);
+        String userName = this.getClaim(bearerToken, Claims::getSubject);
+        return userName;
+        //return jwt.getUsers().getEmail();
     }
 
     public boolean tokenExpired(String bearerToken) {
-        Jwt jwt = this.getTokenByBearerToken(bearerToken );
         Date expirationTokenDate = this.getClaim(bearerToken, Claims::getExpiration);
         boolean bearerTokenIsExpire = false;
-        if(jwt.isBearerTokenExpire() || expirationTokenDate.before(new Date())){
+        if(expirationTokenDate.before(new Date())){
             bearerTokenIsExpire = true;
         }
         return bearerTokenIsExpire;
     }
 
+
     public Jwt getTokenByBearerToken(String bearerToken ){
         return this.jwtRepository.findByBearerToken(bearerToken).orElseThrow(()-> new RuntimeException("ce token n'existe pas"));
+    }
+
+    @Transactional(readOnly = true)
+    public JwtDTO getTokenDTOByBearerToken(String bearerToken ){
+         Jwt jwt = this.jwtRepository.findByBearerToken(bearerToken).orElseThrow(()-> new RuntimeException("ce token n'existe pas"));
+        JwtDTO jwtDTO  = jwtMapper.fromJwt(jwt);
+        return jwtDTO;
     }
 
     public Jwt getJwtByRefreshToken(String refreshToken ){
