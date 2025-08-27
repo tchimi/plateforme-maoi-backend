@@ -78,15 +78,10 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
         usersDTO.setUpdatedAt(usersDTO.getCreatedAt());
         String mdpCrypte = this.passwordEncoder.encode(usersDTO.getPassword());
         usersDTO.setPassword(mdpCrypte);
-        Role userRole = new Role();
-        if (usersDTO.isAdmin()) {
-            userRole.setLibelle(TypeDeRole.ADMINISTRATEUR);
-        } else {
-            userRole.setLibelle(TypeDeRole.UTILISATEUR);
-        }
-        usersDTO.setRole(userRole);
+        Role userRole = findOrCreateRole(usersDTO.isAdmin());
         try {
             Users users = usersMapper.fromUserDTO(usersDTO);
+            users.setRole(userRole);
             Users saveUsers = usersRepository.save(users);
             this.validationService.save(saveUsers);
             return usersMapper.fromUsers(saveUsers);
@@ -97,6 +92,20 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
         }
     }
 
+    private Role findOrCreateRole(boolean isAdmin) {
+        TypeDeRole roleType = isAdmin ? TypeDeRole.ADMINISTRATEUR : TypeDeRole.UTILISATEUR;
+
+        Optional<Role> existingRole = roleRepository.findByLibelle(roleType);
+
+        if (existingRole.isPresent()) {
+            return existingRole.get();
+        } else {
+            Role newRole = new Role();
+            newRole.setLibelle(roleType);
+            return roleRepository.save(newRole);
+        }
+    }
+
     @Override
     public UsersDTO updateUsers(Long usersId, UsersDTO usersDTO, MultipartFile file) throws UserMailInvalidException, UserNotFoundException, StorageException {
         UsersDTO oldUserDTO = getUser(usersId);
@@ -104,7 +113,6 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
             throw new UserNotFoundException("Utilisateur non trouvé");
         }
 
-        // Conserver l'email et le mot de passe existants
         usersDTO.setEmail(oldUserDTO.getEmail());
         usersDTO.setPassword(oldUserDTO.getPassword());
 
