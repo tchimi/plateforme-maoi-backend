@@ -20,7 +20,7 @@ public interface UsersService {
 
     void deleteUsers(Long idUsers) throws UserNotFoundException, IOException;
 
-    ListUsersDTO getUsers(int page, int size) throws UserNotFoundException;
+    ListUsersDTO getUsers(int page, int size) throws UserNotFoundException, UsersAdminException;
 
     UsersDTO getUsersByEmail(String email) throws UserNotFoundException;
 

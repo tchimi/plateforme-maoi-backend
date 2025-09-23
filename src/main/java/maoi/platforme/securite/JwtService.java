@@ -11,10 +11,12 @@ import maoi.platforme.dtos.JwtDTO;
 import maoi.platforme.entities.Jwt;
 import maoi.platforme.entities.RefreshToken;
 import maoi.platforme.entities.Users;
+import maoi.platforme.exception.UsersAdminException;
 import maoi.platforme.mappers.JwtMapperImpl;
 import maoi.platforme.repositories.JwtRepository;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -102,6 +104,14 @@ public class JwtService {
     public void removeUseLessJwt(){
         log.info("suppression des token non utiliser {}::",Instant.now());
         this.jwtRepository.deleteAllByBearerTokenExpireAndBearerTokenDisabled(true,true);
+    }
+
+    public void actionAdminOnly() throws UsersAdminException{
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth.getAuthorities().stream()
+                .noneMatch(a -> a.getAuthority().equals("ROLE_ADMINISTRATEUR"))) {
+            throw new UsersAdminException("Accès refusé : réservé aux admins !");
+        }
     }
 
     private <T> T getClaim(String bearerToken, Function<Claims, T> function) {

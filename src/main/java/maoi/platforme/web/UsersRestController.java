@@ -28,7 +28,7 @@ public class UsersRestController {
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping(path = "/v1/users", produces = MediaType.APPLICATION_JSON_VALUE)
     public ListUsersDTO listUsers(@RequestParam(name = "page", defaultValue = "0") int page,
-                                  @RequestParam(name = "size", defaultValue = "10") int size) throws UserNotFoundException {
+                                  @RequestParam(name = "size", defaultValue = "10") int size) throws UserNotFoundException, UsersAdminException {
         ListUsersDTO listUsersDTO = usersService.getUsers(page, size);
         return listUsersDTO;
     }

@@ -108,6 +108,7 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
 
     @Override
     public UsersDTO updateUsers(Long usersId, UsersDTO usersDTO, MultipartFile file) throws UserMailInvalidException, UserNotFoundException, StorageException {
+
         UsersDTO oldUserDTO = getUser(usersId);
         if (oldUserDTO == null) {
             throw new UserNotFoundException("Utilisateur non trouvé");
@@ -146,8 +147,9 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
     }
 
     @Override
-    public ListUsersDTO getUsers(int page, int size) throws UserNotFoundException {
-        Sort.Direction direction = Sort.Direction.fromString("DESC");
+    public ListUsersDTO getUsers(int page, int size) throws UserNotFoundException, UsersAdminException {
+        jwtService.actionAdminOnly();
+        Sort.Direction direction = Sort.Direction.fromString("ASC");
         String sortBy = "updatedAt";
         Page<Users> listUsers = usersRepository.findAll(PageRequest.of(page, size, Sort.by(direction,sortBy)));
         if (listUsers.isEmpty()) {

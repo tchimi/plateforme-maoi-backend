@@ -25,7 +25,7 @@ public class EventsRestController {
     @ResponseStatus(value = HttpStatus.CREATED)
     @PostMapping(path="v1/events/save")
     public EventsDTO saveEvents(@ModelAttribute EventsDTO eventsDTO,
-                                @RequestParam(name = "file") MultipartFile file) throws EventsSlugUsedException, StorageException, EventsSlugInvalidException {
+                                @RequestParam(name = "file") MultipartFile file) throws EventsSlugUsedException, StorageException, EventsSlugInvalidException, UsersAdminException {
         return this.eventsService.saveEvents(eventsDTO, file);
     }
 
@@ -33,20 +33,20 @@ public class EventsRestController {
     @PutMapping(path = "v1/events/update/{idEvents}")
     public  EventsDTO updateEvewnt(@PathVariable(name = "idEvents") Long idEvent,
                                    @ModelAttribute EventsDTO eventsDTO,
-                                   @RequestParam(name = "file") MultipartFile file) throws EventNotFoundException, StorageException, EventsSlugInvalidException {
+                                   @RequestParam(name = "file") MultipartFile file) throws EventNotFoundException, StorageException, EventsSlugInvalidException, UsersAdminException {
         return this.eventsService.updateEvents(idEvent,eventsDTO,file);
     }
 
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @DeleteMapping(path = "v1/events/delete/{idEvents}")
-    public void deleteEvents(@PathVariable(name = "idEvents") Long idEvents) throws IOException, EventNotFoundException {
+    public void deleteEvents(@PathVariable(name = "idEvents") Long idEvents) throws IOException, EventNotFoundException, UsersAdminException {
         this.eventsService.deleteEvents(idEvents);
     }
 
     @ResponseStatus(value = HttpStatus.OK)
     @GetMapping(path="v1/events", produces = MediaType.APPLICATION_JSON_VALUE)
     public ListEventsDTO getEvents(@RequestParam(name = "page", defaultValue = "0") int page,
-                                   @RequestParam(name = "size", defaultValue = "10") int size) throws EventNotFoundException {
+                                   @RequestParam(name = "size", defaultValue = "10") int size) throws EventNotFoundException,UsersAdminException {
         ListEventsDTO listEventsDTO = this.eventsService.events(page,size);
       return listEventsDTO;
     }

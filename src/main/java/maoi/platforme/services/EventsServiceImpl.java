@@ -6,6 +6,7 @@ import maoi.platforme.entities.Events;
 import maoi.platforme.exception.*;
 import maoi.platforme.mappers.EventsMapperImpl;
 import maoi.platforme.repositories.EventsRepository;
+import maoi.platforme.securite.JwtService;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -26,13 +27,15 @@ public class EventsServiceImpl implements EventsService {
 
     private EventsRepository eventsRepository;
     private EventsMapperImpl eventsMapper;
+    private JwtService jwtService;
     private UploadFileService uploadFileService;
     private final Path rootLocation = Paths.get("upload/");
     private final String storageDir = "events/coverImage";
 
-    public EventsServiceImpl(EventsRepository eventsRepository, EventsMapperImpl eventsMapper, UploadFileService uploadFileService) {
+    public EventsServiceImpl(EventsRepository eventsRepository, EventsMapperImpl eventsMapper, UploadFileService uploadFileService, JwtService jwtService) {
         this.eventsRepository = eventsRepository;
         this.eventsMapper = eventsMapper;
+        this.jwtService = jwtService;
         this.uploadFileService = uploadFileService;
     }
 
@@ -97,8 +100,9 @@ public class EventsServiceImpl implements EventsService {
     }
 
     @Override
-    public ListEventsDTO events(int page, int size) throws EventNotFoundException {
-        Sort.Direction direction = Sort.Direction.fromString("DESC");
+    public ListEventsDTO events(int page, int size) throws EventNotFoundException, UsersAdminException {
+        jwtService.actionAdminOnly();
+        Sort.Direction direction = Sort.Direction.fromString("ASC");
         String sortBy = "updatedAt";
         Page<Events> eventsPage = eventsRepository.findAll(PageRequest.of(page, size, Sort.by(direction, sortBy)));
         if (eventsPage == null) {

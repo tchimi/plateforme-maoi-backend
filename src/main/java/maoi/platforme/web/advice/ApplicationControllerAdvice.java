@@ -103,6 +103,17 @@ public class ApplicationControllerAdvice {
         return null;
     }
 
+    @ResponseStatus(HttpStatus.UNAUTHORIZED)
+    @ExceptionHandler({UsersAdminException.class})
+    public @ResponseBody ErrorEntity handlerUnauthorizedException(Object exception) {
+
+        if (exception instanceof UsersAdminException) {
+            UsersAdminException usersAdminEx = (UsersAdminException) exception;
+            return new ErrorEntity("401", usersAdminEx.getMessage());
+        }
+        return null;
+    }
+
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler({UserMailUsedException.class,
             TestimonySlugUsedException.class,

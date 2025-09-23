@@ -10,15 +10,15 @@ import java.io.IOException;
 
 
 public interface EventsService {
-    EventsDTO saveEvents(EventsDTO eventsDTO, MultipartFile file) throws EventsSlugInvalidException, EventsSlugUsedException, StorageException;
+    EventsDTO saveEvents(EventsDTO eventsDTO, MultipartFile file) throws EventsSlugInvalidException, EventsSlugUsedException, UsersAdminException, StorageException;
 
-    EventsDTO updateEvents(Long idEvent, EventsDTO eventsDTO, MultipartFile file) throws EventNotFoundException, EventsSlugInvalidException, StorageException;
+    EventsDTO updateEvents(Long idEvent, EventsDTO eventsDTO, MultipartFile file) throws EventNotFoundException, EventsSlugInvalidException, UsersAdminException, StorageException;
 
-    void deleteEvents(Long idEvent) throws EventNotFoundException, IOException;
+    void deleteEvents(Long idEvent) throws EventNotFoundException, UsersAdminException, IOException;
 
     EventsDTO findEventBySlug(String slug) throws EventNotFoundException;
 
-    ListEventsDTO events(int page, int size) throws EventNotFoundException;
+    ListEventsDTO events(int page, int size) throws EventNotFoundException, UsersAdminException;
 
     EventsDTO event(Long idEvent) throws EventNotFoundException;
 
