@@ -40,5 +40,7 @@ public interface UsersService {
 
     void newPassword(UpdatePasswordParam parameters) throws ValidationCodeNotExist;
 
+    void refreshActiveUserCode(Long idUser) throws UserNotFoundException;
+
     Map<String,String> refreshToken(Map<String, String> refreshTokenProperties);
 }

@@ -247,6 +247,11 @@ public class UsersServiceImpl implements UsersService, UserDetailsService {
     }
 
     @Override
+    public void refreshActiveUserCode(Long idUser) throws UserNotFoundException {
+        this.validationService.getNewCodeValidation(idUser);
+    }
+
+    @Override
     public Map<String,String> refreshToken(Map<String, String> refreshTokenProperties) {
         Jwt jwt = this.jwtService.getJwtByRefreshToken(refreshTokenProperties.get("refreshToken"));
         RefreshToken refreshToken = jwt.getRefreshToken();

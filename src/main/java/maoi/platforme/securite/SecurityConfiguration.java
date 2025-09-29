@@ -41,6 +41,7 @@ public class SecurityConfiguration {
                                 .requestMatchers(POST,"v1/updatePassWord").permitAll()
                                 .requestMatchers(POST,"v1/newPassWord").permitAll()
                                 .requestMatchers(POST,"v1/refresh-token").permitAll()
+                                .requestMatchers(POST,"v1/users/refresh-active-user-code/{usersId}").permitAll()
                                 .requestMatchers(GET,"/v3/**").permitAll()
                                 .requestMatchers(GET,"/swagger-ui/**").permitAll()
                                 .anyRequest().authenticated()

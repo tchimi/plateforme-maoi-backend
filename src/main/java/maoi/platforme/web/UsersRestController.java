@@ -117,4 +117,10 @@ public class UsersRestController {
         return resource;
     }
 
+    @ResponseStatus(value = HttpStatus.NO_CONTENT)
+    @PostMapping(path = "v1/users/refresh-active-user-code/{usersId}")
+    public void refreshActiveCode(@PathVariable(name = "usersId") Long idUsers) throws UserNotFoundException {
+        this.usersService.refreshActiveUserCode(idUsers);
+    }
+
 }

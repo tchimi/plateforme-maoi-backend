@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import maoi.platforme.entities.Users;
 import maoi.platforme.entities.Validation;
 import maoi.platforme.exception.ValidationCodeNotExist;
+import maoi.platforme.repositories.UsersRepository;
 import maoi.platforme.repositories.ValidationRepository;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -25,25 +26,38 @@ public class ValidationServiceImpl implements ValidationService {
     public void save(Users users) {
         Validation confirmation = new Validation();
         confirmation.setUsers(users);
-        Instant creationTime = Instant.now();
-        confirmation.setCreatedAt(creationTime);
-        Instant expiration =  creationTime.plus(10, MINUTES);
-        confirmation.setExpire(expiration);
-        Random random = new Random();
-        int randomInteger = random.nextInt(999999);
-        String code = String.format("%06d",randomInteger);
-        confirmation.setCode(code);
-        this.validationRepository.save(confirmation);
-        this.notificationService.sendEmail(confirmation);
+        saveValidationAndSendNotification(confirmation);
     }
 
     public Validation getValidationByCode(String code) throws ValidationCodeNotExist {
         return  this.validationRepository.findByCode(code).orElseThrow(()-> new ValidationCodeNotExist("Votre code de validation est invalide"));
     }
 
+    @Override
+    public void getNewCodeValidation(Long idUser) {
+        Validation validation =  validationRepository.findByUsers_IdUsers(idUser).orElseThrow();
+        saveValidationAndSendNotification(validation);
+    }
+
     @Scheduled(cron = "@daily")
     public void deleteValidationExpire(){
         Instant now = Instant.now();
         this.validationRepository.deleteAllByExpireBefore(now);
+    }
+
+    private String generateCode() {
+        Random random = new Random();
+        int randomInteger = random.nextInt(999999);
+        return String.format("%06d",randomInteger);
+    }
+    private void saveValidationAndSendNotification(Validation validation ){
+        Instant creationTime = Instant.now();
+        validation.setCreatedAt(creationTime);
+        Instant expiration =  creationTime.plus(10, MINUTES);
+        validation.setExpire(expiration);
+        String code = generateCode();
+        validation.setCode(code);
+        this.validationRepository.save(validation);
+        this.notificationService.sendEmail(validation);
     }
 }

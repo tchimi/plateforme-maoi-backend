@@ -10,5 +10,7 @@ import java.util.Optional;
 public interface ValidationRepository extends JpaRepository<Validation, Long> {
     Optional<Validation> findByCode(String code);
 
+    Optional<Validation> findByUsers_IdUsers(Long idUsers);
+
     void deleteAllByExpireBefore(Instant now);
 }
