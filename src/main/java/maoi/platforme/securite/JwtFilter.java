@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import maoi.platforme.dtos.JwtDTO;
 import maoi.platforme.entities.Jwt;
 import maoi.platforme.entities.Users;
+import maoi.platforme.exception.BearerTokenNotFoundException;
 import maoi.platforme.repositories.UsersRepository;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -30,25 +31,16 @@ public class JwtFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String userName;
-        String bearerToken;
-        boolean isBearerTokenExpire;
-        Jwt jwtInDB = null;
-        JwtDTO jwtDTO;
-
         String authorization = request.getHeader("Authorization");
         if(authorization != null && authorization.startsWith("Bearer ")){
-            bearerToken = authorization.substring(7);
-            //jwtInDB = this.jwtService.getTokenByBearerToken(bearerToken);
-            jwtDTO = this.jwtService.getTokenDTOByBearerToken(bearerToken);
-            isBearerTokenExpire = this.jwtService.tokenExpired(bearerToken);
-            if(!isBearerTokenExpire){
-                userName = this.jwtService.extractUserName(bearerToken);
-                if(jwtDTO.getUsers().getEmail().equals(userName) && SecurityContextHolder.getContext().getAuthentication() == null){
-                    Users userDetails = jwtDTO.getUsers();
-                    UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
-                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
-                }
+            String bearerToken = authorization.substring(7);
+            this.jwtService.validateTokenExpiration(bearerToken);
+            JwtDTO jwtDTO = this.jwtService.getTokenDTOByBearerToken(bearerToken);
+            String userName = this.jwtService.extractUserName(bearerToken);
+            if(jwtDTO.getUsers().getEmail().equals(userName) && SecurityContextHolder.getContext().getAuthentication() == null){
+                Users userDetails = jwtDTO.getUsers();
+                UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+                SecurityContextHolder.getContext().setAuthentication(authenticationToken);
             }
         }
         filterChain.doFilter(request,response);

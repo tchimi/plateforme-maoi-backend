@@ -21,7 +21,6 @@ public class ApplicationControllerAdvice {
             ServicesNotFoundException.class, ServicesSlugInvalidException.class,
             CodeValidationException.class, ValidationCodeNotExist.class,
             TrainingNotFoundException.class,TrainingSlugInvalidException.class,
-            BearerTokenNotFoundException.class,
             IOException.class})
     public @ResponseBody ErrorEntity handlerException(Object exception) {
 
@@ -86,11 +85,6 @@ public class ApplicationControllerAdvice {
             return new ErrorEntity("400", validationCodeNotExist.getMessage());
         }
 
-        if (exception instanceof BearerTokenNotFoundException) {
-            BearerTokenNotFoundException bearerTokenNotFoundEx = (BearerTokenNotFoundException) exception;
-            return new ErrorEntity("400", bearerTokenNotFoundEx.getMessage());
-        }
-
         if (exception instanceof TrainingNotFoundException) {
             TrainingNotFoundException trainingNotFoundEx = (TrainingNotFoundException) exception;
             return new ErrorEntity("400", trainingNotFoundEx.getMessage());
@@ -104,12 +98,20 @@ public class ApplicationControllerAdvice {
     }
 
     @ResponseStatus(HttpStatus.UNAUTHORIZED)
-    @ExceptionHandler({UsersAdminException.class})
+    @ExceptionHandler({UsersAdminException.class,  BearerTokenNotFoundException.class, BearerTokenExpiredException.class})
     public @ResponseBody ErrorEntity handlerUnauthorizedException(Object exception) {
 
         if (exception instanceof UsersAdminException) {
             UsersAdminException usersAdminEx = (UsersAdminException) exception;
             return new ErrorEntity("401", usersAdminEx.getMessage());
+        }
+        if (exception instanceof BearerTokenNotFoundException) {
+            BearerTokenNotFoundException bearerTokenNotFoundEx = (BearerTokenNotFoundException) exception;
+            return new ErrorEntity("401", bearerTokenNotFoundEx.getMessage());
+        }
+        if (exception instanceof BearerTokenExpiredException) {
+            BearerTokenExpiredException bearerTokenExpiredException = (BearerTokenExpiredException) exception;
+            return new ErrorEntity("401", bearerTokenExpiredException.getMessage());
         }
         return null;
     }

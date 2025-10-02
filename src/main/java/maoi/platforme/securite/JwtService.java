@@ -11,6 +11,8 @@ import maoi.platforme.dtos.JwtDTO;
 import maoi.platforme.entities.Jwt;
 import maoi.platforme.entities.RefreshToken;
 import maoi.platforme.entities.Users;
+import maoi.platforme.exception.BearerTokenExpiredException;
+import maoi.platforme.exception.BearerTokenNotFoundException;
 import maoi.platforme.exception.UsersAdminException;
 import maoi.platforme.mappers.JwtMapperImpl;
 import maoi.platforme.repositories.JwtRepository;
@@ -67,25 +69,22 @@ public class JwtService {
         //return jwt.getUsers().getEmail();
     }
 
-    public boolean tokenExpired(String bearerToken) {
+    public void validateTokenExpiration(String bearerToken) {
         Date expirationTokenDate = this.getClaim(bearerToken, Claims::getExpiration);
-        boolean bearerTokenIsExpire = false;
         if(expirationTokenDate.before(new Date())){
-            bearerTokenIsExpire = true;
+            throw new BearerTokenExpiredException("Le token a expiré");
         }
-        return bearerTokenIsExpire;
     }
 
 
-    public Jwt getTokenByBearerToken(String bearerToken ){
-        return this.jwtRepository.findByBearerToken(bearerToken).orElseThrow(()-> new RuntimeException("ce token n'existe pas"));
+    public Jwt getTokenByBearerToken(String bearerToken ) throws BearerTokenNotFoundException{
+        return this.jwtRepository.findByBearerToken(bearerToken).orElseThrow(()-> new BearerTokenNotFoundException("ce token n'existe pas"));
     }
 
     @Transactional(readOnly = true)
-    public JwtDTO getTokenDTOByBearerToken(String bearerToken ){
-         Jwt jwt = this.jwtRepository.findByBearerToken(bearerToken).orElseThrow(()-> new RuntimeException("ce token n'existe pas"));
-        JwtDTO jwtDTO  = jwtMapper.fromJwt(jwt);
-        return jwtDTO;
+    public JwtDTO getTokenDTOByBearerToken(String bearerToken ) {
+        Jwt jwt = this.jwtRepository.findByBearerToken(bearerToken).orElseThrow(()-> new BearerTokenNotFoundException("ce token n'existe pas"));
+        return jwtMapper.fromJwt(jwt);
     }
 
     public Jwt getJwtByRefreshToken(String refreshToken ){
