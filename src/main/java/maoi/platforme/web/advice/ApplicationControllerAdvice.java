@@ -3,12 +3,16 @@ package maoi.platforme.web.advice;
 import maoi.platforme.dtos.ErrorEntity;
 import maoi.platforme.exception.*;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.DisabledException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 
 import java.io.IOException;
+import java.util.Map;
 
 @ControllerAdvice
 public class ApplicationControllerAdvice {
@@ -116,6 +120,17 @@ public class ApplicationControllerAdvice {
         return null;
     }
 
+    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ExceptionHandler({UserNotActiveException.class,})
+    public @ResponseBody ErrorEntity handlerForbiddenException(Object exception) {
+
+        if (exception instanceof UserNotActiveException) {
+            UserNotActiveException userNotActiveEx = (UserNotActiveException) exception;
+            return new ErrorEntity("403", userNotActiveEx.getMessage());
+        }
+        return null;
+    }
+
     @ResponseStatus(HttpStatus.CONFLICT)
     @ExceptionHandler({UserMailUsedException.class,
             TestimonySlugUsedException.class,
@@ -154,6 +169,18 @@ public class ApplicationControllerAdvice {
             return new ErrorEntity("409", trainingSlugUsedEx.getMessage());
         }
         return null;
+    }
+
+    @ExceptionHandler(DisabledException.class)
+    public ResponseEntity<Map<String, String>> handleDisabled(DisabledException ex) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                .body(Map.of("error", "Le compte est désactivé"));
+    }
+
+    @ExceptionHandler(BadCredentialsException.class)
+    public ResponseEntity<Map<String, String>> handleBadCredentials(BadCredentialsException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("error", "Identifiants invalides"));
     }
 
 }

@@ -16,7 +16,6 @@ import maoi.platforme.exception.BearerTokenNotFoundException;
 import maoi.platforme.exception.UsersAdminException;
 import maoi.platforme.mappers.JwtMapperImpl;
 import maoi.platforme.repositories.JwtRepository;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -63,10 +62,7 @@ public class JwtService {
     }
 
     public String extractUserName(String bearerToken) {
-        //Jwt jwt = this.getTokenByBearerToken(bearerToken);
-        String userName = this.getClaim(bearerToken, Claims::getSubject);
-        return userName;
-        //return jwt.getUsers().getEmail();
+        return this.getClaim(bearerToken, Claims::getSubject);
     }
 
     public void validateTokenExpiration(String bearerToken) {
