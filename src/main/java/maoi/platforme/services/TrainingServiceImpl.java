@@ -30,7 +30,8 @@ public class TrainingServiceImpl implements TrainingsService {
     private final Path rootLocation = Paths.get("upload/");
     private final String storageDir = "training/coverImage";
 
-    public TrainingServiceImpl(TrainingRepository trainingRepository, UploadFileService uploadFileService, TrainingMapperImpl trainingMapper) {
+    public TrainingServiceImpl(TrainingRepository trainingRepository, UploadFileService uploadFileService,
+                               TrainingMapperImpl trainingMapper) {
         this.trainingRepository = trainingRepository;
         this.uploadFileService = uploadFileService;
         this.trainingMapper = trainingMapper;
@@ -45,43 +46,62 @@ public class TrainingServiceImpl implements TrainingsService {
         if (trainingDTO.getSlug().contains(" ")) {
             throw new TrainingSlugInvalidException("Votre slug est invalide");
     }
-        Optional trainingOptional = trainingRepository.findBySlug(trainingDTO.getSlug());
-        if (trainingOptional.isPresent()) {
+        Optional<Training> existing = trainingRepository.findBySlug(trainingDTO.getSlug());
+        if (existing.isPresent()) {
             throw new TrainingSlugUsedException("Votre slug est déjà utilisé");
         }
+
+        // Image cover
+        if (file != null && !file.isEmpty()) {
+            String fileName = this.uploadFileService.uploadFile(file, storageDir, rootLocation);
+            trainingDTO.setImageCover(fileName);
+        }
+
         trainingDTO.setCreatedAt(new Date());
-        trainingDTO.setUpdatedAt(trainingDTO.getCreatedAt());
-        String fileName = this.uploadFileService.uploadFile(file, storageDir, rootLocation);
-        trainingDTO.setImageCover(fileName);
+        trainingDTO.setUpdatedAt(new Date());
+
+        // Conversion DTO → Entity
         Training training = trainingMapper.fromTrainingDTO(trainingDTO);
-        Training saveTraining = trainingRepository.save(training);
-        return trainingMapper.fromTraining(saveTraining);
+
+        // Sauvegarde
+        Training saved = trainingRepository.save(training);
+
+        return trainingMapper.fromTraining(saved);
     }
 
     @Override
-    public TrainingDTO update(Long idTraining, TrainingDTO trainingDTO, MultipartFile file) throws StorageException, TrainingNotFoundException, TrainingSlugInvalidException {
+    public TrainingDTO update(Long idTraining, TrainingDTO trainingDTO, MultipartFile file)
+            throws StorageException, TrainingNotFoundException, TrainingSlugInvalidException {
+
         TrainingDTO oldTrainingDTO = training(idTraining);
         String slug = trainingDTO.getSlug();
-        String oldSlug = oldTrainingDTO.getSlug();
-        if (!oldSlug.equalsIgnoreCase(slug)) {
+
+        if (slug != null && !oldTrainingDTO.getSlug().equalsIgnoreCase(slug)) {
             if (slug.contains(" ")) {
                 throw new TrainingSlugInvalidException("Votre slug est invalide");
             }
         }
+
         trainingDTO.setId(idTraining);
         trainingDTO.setUpdatedAt(new Date());
-        if (file != null) {
+
+        if (file != null && !file.isEmpty()) {
             String fileName = this.uploadFileService.uploadFile(file, storageDir, rootLocation);
             trainingDTO.setImageCover(fileName);
+        } else {
+            trainingDTO.setImageCover(oldTrainingDTO.getImageCover());
         }
+
         Training training = trainingMapper.fromTrainingDTO(trainingDTO);
-        Training trainingSave = trainingRepository.save(training);
-        return trainingMapper.fromTraining(trainingSave);
+        Training updated = trainingRepository.save(training);
+
+        return trainingMapper.fromTraining(updated);
     }
 
     @Override
     public void delete(Long idTraining) throws IOException, TrainingNotFoundException {
         TrainingDTO trainingDTO = this.training(idTraining);
+
         if (trainingDTO != null) {
             String fileName = trainingDTO.getImageCover();
             uploadFileService.deleteFile(fileName, storageDir, rootLocation);
@@ -91,25 +111,29 @@ public class TrainingServiceImpl implements TrainingsService {
 
     @Override
     public ListTrainingsDTO trainings(int page, int size) throws TrainingNotFoundException {
-        Sort.Direction direction = Sort.Direction.fromString("DESC");
+        Sort.Direction direction = Sort.Direction.DESC;
         String sortBy = "updatedAt";
-        Page<Training> trainingPage = trainingRepository.findAll(PageRequest.of(page, size, Sort.by(direction,sortBy)));
-        if (trainingPage == null) {
-            throw new TrainingNotFoundException("trainings not found");
+        Page<Training> trainingPage = trainingRepository.findAll(PageRequest.of(page, size, Sort.by(direction, sortBy)));
+
+        if (trainingPage.isEmpty()) {
+            throw new TrainingNotFoundException("Aucune formation trouvée");
         }
-        Page<TrainingDTO> trainingDTOPage = trainingPage.map(training -> trainingMapper.fromTraining(training));
+
+        Page<TrainingDTO> trainingDTOPage = trainingPage.map(trainingMapper::fromTraining);
         return trainingMapper.fromTrainingDTOPage(trainingDTOPage);
     }
 
     @Override
     public TrainingDTO training(Long idTraining) throws TrainingNotFoundException {
-        Training training = this.trainingRepository.findById(idTraining).orElseThrow(() -> new TrainingNotFoundException("training not found "));
+        Training training = this.trainingRepository.findById(idTraining)
+                .orElseThrow(() -> new TrainingNotFoundException("training not found "));
         return trainingMapper.fromTraining(training);
     }
 
     @Override
     public TrainingDTO findTrainingBySlug(String slug) throws TrainingNotFoundException {
-        Training training = this.trainingRepository.findBySlug(slug).orElseThrow(() -> new TrainingNotFoundException("training not found with slug " + slug));
+        Training training = this.trainingRepository.findBySlug(slug)
+                .orElseThrow(() -> new TrainingNotFoundException("training not found with slug " + slug));
         return trainingMapper.fromTraining(training);
     }
 
