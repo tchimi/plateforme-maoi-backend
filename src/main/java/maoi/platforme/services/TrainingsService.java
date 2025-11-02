@@ -7,12 +7,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface TrainingsService {
 
-    TrainingDTO save(TrainingDTO trainingDTO, MultipartFile file) throws StorageException, TrainingSlugInvalidException, TrainingSlugUsedException;
+    TrainingDTO save(TrainingDTO trainingDTO, MultipartFile file, List<MultipartFile> assetFiles) throws StorageException, TrainingSlugInvalidException, TrainingSlugUsedException;
 
-    TrainingDTO update(Long idTraining, TrainingDTO trainingDTO, MultipartFile file) throws StorageException, TrainingNotFoundException, TrainingSlugInvalidException;
+    TrainingDTO update(Long idTraining, TrainingDTO trainingDTO, MultipartFile file, List<MultipartFile> assetFiles) throws StorageException, TrainingNotFoundException, TrainingSlugInvalidException, IOException;
 
     void delete(Long idTraining) throws IOException, TrainingNotFoundException;
 

@@ -18,16 +18,29 @@ public class Training {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String title;
     private String slug;
     private String description;
+
+    @ElementCollection
+    @CollectionTable(name = "training_objectives", joinColumns = @JoinColumn(name = "training_id"))
+    @Column(name = "objective")
+    private List<String> objectifs;
+
+    private String prerequis;
+    private boolean certificat;
+
     private String duration;
-    private String note;
+    private Double price;
+    private Double note;
     private String imageCover;
+
     private Date createdAt;
     private Date updatedAt;
 
-    @OneToMany(mappedBy = "idChapters",fetch = FetchType.LAZY)
-    private List<TrainingChapters> trainingChaptersList;
+    // Relation avec les parties
+    @OneToMany(mappedBy = "training", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TrainingPartie> parties;
 
 }

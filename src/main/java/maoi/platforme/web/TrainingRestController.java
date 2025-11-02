@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 public class TrainingRestController {
@@ -21,19 +22,28 @@ public class TrainingRestController {
     }
 
     @ResponseStatus(value = HttpStatus.CREATED)
-    @PostMapping(path = "v1/training/save")
-    public TrainingDTO saveTraining(@ModelAttribute TrainingDTO trainingDTO,
-                                    @RequestParam(name = "file") MultipartFile file) throws StorageException, TrainingSlugUsedException, TrainingSlugInvalidException {
-        return this.trainingService.save(trainingDTO, file);
+    @PostMapping(path = "v1/training/save", consumes = {"multipart/form-data"})
+    public TrainingDTO saveTraining(
+            @ModelAttribute TrainingDTO trainingDTO,
+            @RequestParam(name = "coverFile", required = false) MultipartFile coverFile,
+            @RequestParam(name = "assets", required = false) List<MultipartFile> assetFiles
+    ) throws StorageException, TrainingSlugUsedException, TrainingSlugInvalidException {
+
+        return this.trainingService.save(trainingDTO, coverFile, assetFiles);
     }
 
-    @ResponseStatus(value = HttpStatus.NO_CONTENT)
-    @PutMapping(path = "v1/training/update/{idTraining}")
-    public TrainingDTO updateTraining(@PathVariable(name = "idTraining") Long idTraining,
-                                      @ModelAttribute TrainingDTO trainingDTO,
-                                      @RequestParam(name = "file") MultipartFile file) throws StorageException, TrainingNotFoundException, TrainingSlugInvalidException {
-        return this.trainingService.update(idTraining, trainingDTO, file);
+    @ResponseStatus(value = HttpStatus.OK)
+    @PutMapping(path = "v1/training/update/{idTraining}", consumes = {"multipart/form-data"})
+    public TrainingDTO updateTraining(
+            @PathVariable(name = "idTraining") Long idTraining,
+            @ModelAttribute TrainingDTO trainingDTO,
+            @RequestParam(name = "coverFile", required = false) MultipartFile coverFile,
+            @RequestParam(name = "assets", required = false) List<MultipartFile> assetFiles
+    ) throws StorageException, TrainingNotFoundException, TrainingSlugInvalidException, IOException {
+
+        return this.trainingService.update(idTraining, trainingDTO, coverFile, assetFiles);
     }
+
 
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     @DeleteMapping(path = "v1/training/delete/{idTraining}")
