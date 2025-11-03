@@ -56,21 +56,21 @@ public class TrainingServiceImpl implements TrainingsService {
         trainingDTO.setCreatedAt(new Date());
         trainingDTO.setUpdatedAt(trainingDTO.getCreatedAt());
 
-        // 1️⃣ Upload cover image
+        //Upload cover image
         if (coverFile != null && !coverFile.isEmpty()) {
             String fileName = uploadFileService.uploadFile(coverFile, coverDir, rootLocation);
             trainingDTO.setImageCover(fileName);
         }
 
-        // 2️⃣ Convert DTO → Entity
+        //Convert DTO → Entity
         Training training = trainingMapper.fromTrainingDTO(trainingDTO);
 
-        // 3️⃣ Créer les assets à partir des fichiers uploadés
+        //Créer les assets à partir des fichiers uploadés
         if (assetFiles != null && !assetFiles.isEmpty()) {
             createAssetsForTraining(training, assetFiles);
         }
 
-        // 4️⃣ Sauvegarde finale
+        //Sauvegarde finale
         Training saved = trainingRepository.save(training);
         return trainingMapper.fromTraining(saved);
     }
@@ -99,7 +99,6 @@ public class TrainingServiceImpl implements TrainingsService {
             training.setParties(Collections.singletonList(partie));
         }
 
-        // On suppose ici qu’on ajoute tous les assets dans le premier chapitre
         TrainingChapters targetChapter = training.getParties().get(0).getChapters().get(0);
 
         for (MultipartFile file : assetFiles) {
