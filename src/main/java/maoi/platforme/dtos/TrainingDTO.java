@@ -23,5 +23,4 @@ public class TrainingDTO {
     private Date createdAt;
     private Date updatedAt;
 
-    private List<TrainingPartieDTO> parties;
 }

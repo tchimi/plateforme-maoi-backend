@@ -24,4 +24,6 @@ public interface TrainingsService {
     TrainingDTO findTrainingBySlug(String slug) throws TrainingNotFoundException;
 
     Resource getImageCover(String fileName) throws StorageFileNotFoundException;
+
+    TrainingDTO attachParties(Long trainingId, List<Long> partieIds) throws TrainingNotFoundException;
 }

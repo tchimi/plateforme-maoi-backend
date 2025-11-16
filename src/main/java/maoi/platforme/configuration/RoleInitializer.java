@@ -15,7 +15,7 @@ public class RoleInitializer {
 
     @PostConstruct
     public void initRoles() {
-        // Créer les rôles de base s'ils n'existent pas
+
         if (!roleRepository.existsByLibelle(TypeDeRole.UTILISATEUR)) {
             Role userRole = new Role();
             userRole.setLibelle(TypeDeRole.UTILISATEUR);
@@ -26,6 +26,12 @@ public class RoleInitializer {
             Role adminRole = new Role();
             adminRole.setLibelle(TypeDeRole.ADMINISTRATEUR);
             roleRepository.save(adminRole);
+        }
+
+        if (!roleRepository.existsByLibelle(TypeDeRole.FORMATEUR)) {
+            Role formateurRole = new Role();
+            formateurRole.setLibelle(TypeDeRole.FORMATEUR);
+            roleRepository.save(formateurRole);
         }
     }
 

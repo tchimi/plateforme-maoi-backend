@@ -2,5 +2,6 @@ package maoi.platforme.enums;
 
 public enum TypeDeRole {
     UTILISATEUR,
-    ADMINISTRATEUR
+    ADMINISTRATEUR,
+    FORMATEUR
 }

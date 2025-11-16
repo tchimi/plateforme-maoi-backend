@@ -8,6 +8,7 @@ import maoi.platforme.entities.TrainingChapters;
 import maoi.platforme.entities.TrainingPartie;
 import maoi.platforme.exception.*;
 import maoi.platforme.mappers.TrainingMapperImpl;
+import maoi.platforme.repositories.TrainingPartieRepository;
 import maoi.platforme.repositories.TrainingRepository;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.Page;
@@ -29,16 +30,18 @@ public class TrainingServiceImpl implements TrainingsService {
     private TrainingRepository trainingRepository;
     private UploadFileService uploadFileService;
     private TrainingMapperImpl trainingMapper;
+    private TrainingPartieRepository partieRepository;
     private final Path rootLocation = Paths.get("upload/");
     private final String storageDir = "training/coverImage";
     private final String coverDir = "training/coverImage";
     private final String assetDir = "training/assets";
 
     public TrainingServiceImpl(TrainingRepository trainingRepository, UploadFileService uploadFileService,
-                               TrainingMapperImpl trainingMapper) {
+                               TrainingMapperImpl trainingMapper,TrainingPartieRepository partieRepository ) {
         this.trainingRepository = trainingRepository;
         this.uploadFileService = uploadFileService;
         this.trainingMapper = trainingMapper;
+        this.partieRepository = partieRepository;
     }
 
     @Override
@@ -65,12 +68,6 @@ public class TrainingServiceImpl implements TrainingsService {
         //Convert DTO → Entity
         Training training = trainingMapper.fromTrainingDTO(trainingDTO);
 
-        //Créer les assets à partir des fichiers uploadés
-        if (assetFiles != null && !assetFiles.isEmpty()) {
-            createAssetsForTraining(training, assetFiles);
-        }
-
-        //Sauvegarde finale
         Training saved = trainingRepository.save(training);
         return trainingMapper.fromTraining(saved);
     }
@@ -249,5 +246,19 @@ public class TrainingServiceImpl implements TrainingsService {
     @Override
     public Resource getImageCover(String fileName) throws StorageFileNotFoundException {
         return this.uploadFileService.loadAsResource(fileName, storageDir, this.rootLocation);
+    }
+
+    @Override
+    public TrainingDTO attachParties(Long trainingId, List<Long> partieIds) throws TrainingNotFoundException {
+        Training training = trainingRepository.findById(trainingId)
+                .orElseThrow(() -> new TrainingNotFoundException("Training not found"));
+
+        List<TrainingPartie> parties = partieRepository.findAllById(partieIds);
+
+        training.setParties(parties);
+        training.setUpdatedAt(new Date());
+
+        Training saved = trainingRepository.save(training);
+        return trainingMapper.fromTraining(saved);
     }
 }

@@ -19,11 +19,11 @@ public class TrainingMapperImpl {
         BeanUtils.copyProperties(training, dto);
 
         // Mapper les parties
-        if (training.getParties() != null) {
+        /*if (training.getParties() != null) {
             dto.setParties(training.getParties().stream()
                     .map(this::fromTrainingPartie)
                     .toList());
-        }
+        }*/
 
         return dto;
     }
@@ -35,12 +35,12 @@ public class TrainingMapperImpl {
         BeanUtils.copyProperties(dto, training);
 
         // Mapper les parties
-        if (dto.getParties() != null) {
+        /*if (dto.getParties() != null) {
             training.setParties(dto.getParties().stream()
                     .map(this::fromTrainingPartieDTO)
                     .peek(p -> p.setTraining(training)) // lier la relation inverse
                     .toList());
-        }
+        }*/
 
         return training;
     }
